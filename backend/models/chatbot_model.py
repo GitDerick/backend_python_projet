@@ -24,3 +24,12 @@ def load_model(model_path, num_classes):
     model = model.to(device)  # Envoyer le modèle au GPU/CPU
 
     return model, device
+
+# Spécifier le chemin absolu pour Railway
+model_path = "/app/backend/models/medical_model_combined_finetuned.pth"  # Chemin absolu sur Railway
+
+# Ou utilisez le chemin relatif en local si vous travaillez sur votre machine
+# model_path = "models/medical_model_combined_finetuned.pth"
+
+# Exemple d'utilisation de la fonction
+model, device = load_model(model_path, num_classes=4)
