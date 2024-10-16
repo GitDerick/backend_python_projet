@@ -1,6 +1,5 @@
 env
 backend/chatbot/.env
-backend/models/medical_model_combined_finetuned.pth
 *.pyc
 __pycache__/
 uploads/
