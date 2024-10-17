@@ -26,5 +26,5 @@ def load_model(model_path, num_classes):
     return model, device
 
 # Utilisation du chemin relatif local à l'intérieur du projet déployé
-model_path = './models/medical_model_combined_finetuned.pth'
+model_path = '../backend/models/medical_model_combined_finetuned.pth'
 model, device = load_model(model_path, num_classes=4)
