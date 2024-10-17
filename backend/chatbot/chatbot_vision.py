@@ -64,7 +64,7 @@ transform = transforms.Compose([
 ])
 
 # Charger le modèle simple
-model_path = 'simple_model.pth'  # Utiliser le chemin du modèle simple
+model_path = 'models/simple_model.pth'  # Utiliser le chemin du modèle simple
 model, device = load_model(model_path)  # Charger le modèle simple sans num_classes
 model.eval()  # Mode évaluation
 
