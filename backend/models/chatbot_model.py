@@ -1,27 +1,22 @@
 import torch
 from torchvision import models
 import torch.nn as nn
-import urllib.request
 
-# Fonction pour télécharger et charger le modèle pré-entraîné depuis S3
-def load_model(model_url, num_classes):
+# Fonction pour charger le modèle pré-entraîné depuis le chemin relatif local
+def load_model(model_path, num_classes):
     """
-    Télécharge et charge le modèle ResNet50 pré-entraîné et ajuste la dernière couche en fonction du nombre de classes.
-    :param model_url: URL du fichier du modèle (fichier .pth sur S3)
+    Charge le modèle ResNet50 pré-entraîné et ajuste la dernière couche en fonction du nombre de classes.
+    :param model_path: Chemin vers le fichier du modèle (fichier .pth)
     :param num_classes: Nombre de classes de sortie du modèle
     :return: Modèle chargé et prêt à être utilisé pour les prédictions, et l'appareil (GPU/CPU)
     """
-    # Télécharger le fichier du modèle à partir de l'URL
-    model_path = "medical_model.pth"  # Nom temporaire local
-    urllib.request.urlretrieve(model_url, model_path)
-    
     # Charger le modèle ResNet50 sans pré-entraînement ImageNet
     model = models.resnet50(pretrained=False)
     
-    # Remplacer la dernière couche pour correspondre au nombre de classes dans ton dataset (ici 4)
+    # Remplacer la dernière couche pour correspondre au nombre de classes dans votre dataset (ici 4)
     model.fc = nn.Linear(model.fc.in_features, num_classes)
 
-    # Charger les poids entraînés depuis le fichier .pth téléchargé
+    # Charger les poids entraînés depuis le fichier .pth
     model.load_state_dict(torch.load(model_path))
 
     # Définir l'appareil (GPU si disponible, sinon CPU)
@@ -30,6 +25,6 @@ def load_model(model_url, num_classes):
 
     return model, device
 
-# Exemple d'appel avec le lien de votre modèle sur S3
-model_url = "https://model-ia.s3.us-east-2.amazonaws.com/medical_model_combined_finetuned.pth"
-model, device = load_model(model_url, num_classes=4)
+# Utilisation du chemin relatif local à l'intérieur du projet déployé
+model_path = './medical_model_combined_finetuned.pth'
+model, device = load_model(model_path, num_classes=4)
