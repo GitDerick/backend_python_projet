@@ -1,3 +1,4 @@
+import os
 import torch
 from torchvision import models
 import torch.nn as nn
@@ -24,6 +25,17 @@ def load_model(model_path, num_classes):
     model = model.to(device)  # Envoyer le modèle au GPU/CPU
 
     return model, device
+
+# Vérification du chemin de travail actuel et des fichiers
+print("Répertoire de travail actuel :", os.getcwd())
+print("Liste des fichiers dans le répertoire actuel :", os.listdir(os.getcwd()))
+
+# Vérifier le répertoire des modèles
+model_dir = os.path.join(os.getcwd(), 'backend', 'models')
+if os.path.exists(model_dir):
+    print("Liste des fichiers dans le répertoire des modèles :", os.listdir(model_dir))
+else:
+    print("Le répertoire des modèles n'existe pas :", model_dir)
 
 # Utilisation du chemin relatif local à l'intérieur du projet déployé
 model_path = '../backend/models/medical_model_combined_finetuned.pth'
