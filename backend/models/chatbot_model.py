@@ -17,8 +17,8 @@ def load_model(model_path, num_classes):
     # Remplacer la dernière couche pour correspondre au nombre de classes dans votre dataset (ici 4)
     model.fc = nn.Linear(model.fc.in_features, num_classes)
 
-    # Charger les poids entraînés depuis le fichier .pth
-    model.load_state_dict(torch.load(model_path))
+    # Charger les poids entraînés depuis le fichier .pth, en s'assurant de charger sur CPU
+    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 
     # Définir l'appareil (GPU si disponible, sinon CPU)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
