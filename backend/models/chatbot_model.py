@@ -26,17 +26,25 @@ def load_model(model_path, num_classes):
 
     return model, device
 
-# Vérification du chemin de travail actuel et des fichiers
-print("Répertoire de travail actuel :", os.getcwd())
-print("Liste des fichiers dans le répertoire actuel :", os.listdir(os.getcwd()))
+# Déterminer le chemin du fichier modèle en fonction de l'environnement
+current_dir = os.getcwd()
 
-# Vérifier le répertoire des modèles
-model_dir = os.path.join(os.getcwd(), 'backend', 'models')
-if os.path.exists(model_dir):
-    print("Liste des fichiers dans le répertoire des modèles :", os.listdir(model_dir))
-else:
-    print("Le répertoire des modèles n'existe pas :", model_dir)
+# Chemin potentiel en local ou en production
+possible_paths = [
+    os.path.join(current_dir, 'models', 'medical_model_combined_finetuned.pth'),  # Cas local
+    os.path.join(current_dir, 'backend', 'models', 'medical_model_combined_finetuned.pth')  # Cas Railway ou prod
+]
 
-# Utilisation du chemin relatif local à l'intérieur du projet déployé
-model_path = '../backend/models/medical_model_combined_finetuned.pth'
+# Sélectionner le chemin valide
+model_path = None
+for path in possible_paths:
+    if os.path.exists(path):
+        model_path = path
+        break
+
+# Si aucun chemin n'est trouvé, lever une exception
+if model_path is None:
+    raise FileNotFoundError(f"Le fichier du modèle n'a pas été trouvé dans les chemins suivants : {possible_paths}")
+
+# Charger le modèle avec le chemin correct
 model, device = load_model(model_path, num_classes=4)
