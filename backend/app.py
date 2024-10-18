@@ -92,7 +92,7 @@ def home():
     return "L'application fonctionne correctement sur Railway!"
 
 # Route de vérification supplémentaire
-@app.route('/check')
+@app.route('/check', methods=['GET'])
 def check():
     return "L'application est vivante et fonctionnelle !", 200
 
