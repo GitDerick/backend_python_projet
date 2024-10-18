@@ -104,7 +104,6 @@
 
 
 
-
 import os
 import torch
 import urllib.request
@@ -122,11 +121,13 @@ def download_model_if_needed(model_path):
             # Télécharge le fichier depuis l'URL et le stocke localement
             urllib.request.urlretrieve(model_url, model_path)
             print(f"Modèle téléchargé avec succès dans {model_path}")
+            # Afficher le répertoire où le modèle est stocké
+            print(f"Le modèle a été stocké dans le répertoire : {os.path.dirname(model_path)}")
         except Exception as e:
             print(f"Erreur lors du téléchargement du modèle : {e}")
             raise
     else:
-        print(f"Le fichier du modèle est déjà présent : {model_path}")
+        print(f"Le fichier du modèle est déjà présent dans : {model_path}")
 
 # Fonction pour charger le modèle avec les poids sauvegardés
 def load_model(model_path, num_classes):
