@@ -48,9 +48,6 @@
 
 # # Charger le modèle avec le chemin correct
 # model, device = load_model(model_path, num_classes=4)
-
-
-
 import os
 import torch
 import torch.nn as nn
@@ -83,9 +80,25 @@ def load_model(model_path):
 
     return model, device
 
-# Déterminer le chemin du fichier modèle (ici simple_model.pth dans le même répertoire que ce script)
-current_dir = os.getcwd()
+# Afficher le répertoire de travail actuel
+print("Répertoire de travail actuel :", os.getcwd())
+
+# Lister les fichiers et dossiers dans le répertoire de travail actuel
+print("Contenu du répertoire de travail :")
+for root, dirs, files in os.walk(os.getcwd()):
+    level = root.replace(os.getcwd(), '').count(os.sep)
+    indent = ' ' * 4 * (level)
+    print(f"{indent}{os.path.basename(root)}/")
+    subindent = ' ' * 4 * (level + 1)
+    for f in files:
+        print(f"{subindent}{f}")
+
+# Déterminer le chemin du fichier modèle (ici simple_model.pth dans le répertoire 'models')
+current_dir = os.getcwd()  # Répertoire de travail actuel (backend)
 model_path = os.path.join(current_dir, 'models', 'simple_model.pth')
+
+# Afficher le chemin du fichier modèle
+print(f"Chemin du fichier modèle : {model_path}")
 
 # Vérifier si le fichier existe
 if not os.path.exists(model_path):
