@@ -105,13 +105,30 @@
 
 
 
-
 import os
 import torch
+import urllib.request
 from torchvision import models
 import torch.nn as nn
 
-# Fonction pour charger le modèle pré-entraîné depuis le chemin relatif local
+# URL du modèle stocké sur S3
+model_url = "https://model-ia.s3.us-east-2.amazonaws.com/medical_model_combined_finetuned.pth"
+
+# Fonction pour télécharger le modèle depuis AWS S3 si nécessaire
+def download_model_if_needed(model_path):
+    if not os.path.exists(model_path):
+        print(f"Téléchargement du modèle depuis {model_url}...")
+        try:
+            # Télécharge le fichier depuis l'URL et le stocke localement
+            urllib.request.urlretrieve(model_url, model_path)
+            print(f"Modèle téléchargé avec succès dans {model_path}")
+        except Exception as e:
+            print(f"Erreur lors du téléchargement du modèle : {e}")
+            raise
+    else:
+        print(f"Le fichier du modèle est déjà présent : {model_path}")
+
+# Fonction pour charger le modèle avec les poids sauvegardés
 def load_model(model_path, num_classes):
     """
     Charge le modèle ResNet50 avec les poids sauvegardés.
@@ -121,25 +138,23 @@ def load_model(model_path, num_classes):
     """
     # Charger le modèle ResNet50 sans pré-entraînement ImageNet
     model = models.resnet50(pretrained=False)
-    
-    # Remplacer la dernière couche pour correspondre au nombre de classes dans votre dataset (ici 4)
     model.fc = nn.Linear(model.fc.in_features, num_classes)
-    
-    # Charger les poids depuis le fichier .pth
+
+    # Charger les poids sauvegardés dans le modèle
     state_dict = torch.load(model_path, map_location=torch.device('cpu'))
     model.load_state_dict(state_dict)
     print("Poids du modèle chargés avec succès.")
 
-    # Définir l'appareil (GPU si disponible, sinon CPU)
+    # Envoyer le modèle au GPU si disponible, sinon au CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = model.to(device)  # Envoyer le modèle au GPU/CPU
+    model = model.to(device)
 
     return model, device
 
 # Déterminer le chemin du fichier modèle en fonction de l'environnement
 current_dir = os.getcwd()
 
-# Construction du chemin en évitant la redondance
+# Construction du chemin sans ajouter 'backend' deux fois
 if 'backend' in current_dir:
     # Si le répertoire backend est déjà dans le chemin, ne pas l'ajouter à nouveau
     model_path = os.path.join(current_dir, 'models', 'medical_model_combined_finetuned.pth')
@@ -147,10 +162,11 @@ else:
     # Sinon, ajouter 'backend' au chemin
     model_path = os.path.join(current_dir, 'backend', 'models', 'medical_model_combined_finetuned.pth')
 
+# Afficher où le fichier sera stocké
+print(f"Le fichier sera téléchargé dans : {model_path}")
 
-# Vérifier si le fichier existe
-if not os.path.exists(model_path):
-    raise FileNotFoundError(f"Le fichier du modèle n'a pas été trouvé à l'emplacement : {model_path}")
+# Télécharger le modèle depuis AWS S3 si nécessaire
+download_model_if_needed(model_path)
 
 # Charger le modèle avec le chemin correct
 model, device = load_model(model_path, num_classes=4)
