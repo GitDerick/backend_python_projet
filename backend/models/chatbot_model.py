@@ -102,6 +102,9 @@
 # print("Modèle simple chargé avec succès.")
 
 
+
+
+
 import os
 import torch
 import urllib.request
@@ -113,32 +116,61 @@ model_url = "https://model-ia.s3.us-east-2.amazonaws.com/medical_model_combined_
 
 # Fonction pour télécharger le modèle depuis AWS S3 si nécessaire
 def download_model_if_needed(model_path):
+    # Vérifier si le répertoire existe, sinon le créer
+    model_dir = os.path.dirname(model_path)
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+        print(f"Répertoire {model_dir} créé.")
+
     if not os.path.exists(model_path):
         print(f"Téléchargement du modèle depuis {model_url}...")
         try:
+            # Télécharge le fichier depuis l'URL et le stocke localement
             urllib.request.urlretrieve(model_url, model_path)
             print(f"Modèle téléchargé avec succès dans {model_path}")
             print(f"Le modèle a été stocké dans le répertoire : {os.path.dirname(model_path)}")
+            
+            # Vérification de la taille du fichier téléchargé
+            file_size = os.path.getsize(model_path)
+            print(f"Taille du fichier téléchargé : {file_size} octets")
         except Exception as e:
             print(f"Erreur lors du téléchargement du modèle : {e}")
             raise
     else:
         print(f"Le fichier du modèle est déjà présent dans : {model_path}")
+        file_size = os.path.getsize(model_path)
+        print(f"Taille du fichier déjà présent : {file_size} octets")
 
 # Fonction pour charger le modèle avec les poids sauvegardés
 def load_model(model_path, num_classes):
-    model = models.resnet50(pretrained=False)
-    model.fc = nn.Linear(model.fc.in_features, num_classes)
-    
-    # Charger les poids sauvegardés dans le modèle
-    state_dict = torch.load(model_path, map_location=torch.device('cpu'))
-    model.load_state_dict(state_dict)
-    print("Poids du modèle chargés avec succès.")
+    try:
+        print(f"Tentative de chargement du modèle depuis {model_path}...")
+        
+        # Charger le modèle ResNet50 sans pré-entraînement ImageNet
+        model = models.resnet50(pretrained=False)
+        model.fc = nn.Linear(model.fc.in_features, num_classes)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = model.to(device)
+        # Charger les poids sauvegardés dans le modèle
+        state_dict = torch.load(model_path, map_location=torch.device('cpu'))
+        model.load_state_dict(state_dict)
+        print("Poids du modèle chargés avec succès.")
+        
+        # Vérification de la taille du state_dict
+        print(f"Le state_dict contient {len(state_dict)} clés de poids.")
 
-    return model, device
+        # Envoyer le modèle au GPU si disponible, sinon au CPU
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model = model.to(device)
+        print(f"Modèle envoyé à {device}.")
+        
+        return model, device
+    except Exception as e:
+        print(f"Erreur lors du chargement du modèle : {e}")
+        raise
+
+# Vérifier la version de PyTorch
+pytorch_version = torch.__version__
+print(f"Version de PyTorch : {pytorch_version}")
 
 # Déterminer le chemin du fichier modèle de manière adaptable
 current_dir = os.getcwd()
@@ -154,3 +186,5 @@ download_model_if_needed(model_path)
 
 # Charger le modèle avec le chemin correct
 model, device = load_model(model_path, num_classes=4)
+
+print(f"Modèle chargé et prêt à être utilisé.")
