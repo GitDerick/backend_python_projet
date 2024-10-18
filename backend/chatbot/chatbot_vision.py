@@ -49,7 +49,7 @@
 #         return "Image inconnue ou incertaine."
 
 
-
+import os
 import torch
 from torchvision import transforms
 from PIL import Image
@@ -63,8 +63,11 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
+# Déterminer le chemin du fichier modèle (ici simple_model.pth dans le répertoire 'backend/models')
+current_dir = os.getcwd()  # Répertoire de travail actuel
+model_path = os.path.join(current_dir, 'backend', 'models', 'simple_model.pth')  # Correction du chemin
+
 # Charger le modèle simple
-model_path = 'models/simple_model.pth'  # Utiliser le chemin du modèle simple
 model, device = load_model(model_path)  # Charger le modèle simple sans num_classes
 model.eval()  # Mode évaluation
 
@@ -90,8 +93,7 @@ def analyze_medical_image(image_path):
 
     # Si la confiance dépasse le seuil (réduit à 0.5), retourner la classe prédite
     if confidence.item() > CONFIDENCE_THRESHOLD:
-        # Pour le modèle simple, nous définissons deux classes (classe 0 et classe 1)
-        classes = ['classe_0', 'classe_1']  # À adapter selon le modèle simple
+        classes = ['classe_0', 'classe_1']  # Classes prédéfinies pour le modèle simple
         predicted_label = classes[predicted_class.item()]  # Classe prédite
         confidence_percentage = confidence.item() * 100  # Renvoyer le score de confiance en pourcent
 
