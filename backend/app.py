@@ -1,4 +1,5 @@
 from datetime import timedelta
+import logging
 import os
 import urllib.request
 from flask import Flask
@@ -26,6 +27,7 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=7)  # Token de rafraîc
 
 # Initialisation de Flask-JWT-Extended
 jwt = JWTManager(app)
+
 
 # Vue des patients
 app.register_blueprint(patient_view)
@@ -76,10 +78,31 @@ app.register_blueprint(notification_view)
 #             raise  # Relancer l'erreur si le téléchargement échoue
 
 
+# Ajouter des logs pour suivre les actions
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+@app.before_request
+def startup():
+    logger.info("L'application est en train de démarrer...")
+
+# Route de test basique
+@app.route('/')
+def home():
+    return "L'application fonctionne correctement sur Railway!"
+
+# Route de vérification supplémentaire
+@app.route('/check')
+def check():
+    return "L'application est vivante et fonctionnelle !", 200
+
 if __name__ == '__main__':
     # Télécharger le modèle avant de démarrer l'application
     # download_model_if_needed()
     
     # Utiliser le port fourni par Railway, ou par défaut le port 5000 en local
     port = int(os.environ.get('PORT', 5000))
+
+    # Activer le mode debug seulement si l'application est exécutée en local
+    debug_mode = os.environ.get('RAILWAY_ENVIRONMENT') != 'production'
     app.run(host='0.0.0.0', port=port, debug=True)
