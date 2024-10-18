@@ -102,8 +102,6 @@
 # print("Modèle simple chargé avec succès.")
 
 
-
-
 import os
 import torch
 import urllib.request
@@ -118,10 +116,8 @@ def download_model_if_needed(model_path):
     if not os.path.exists(model_path):
         print(f"Téléchargement du modèle depuis {model_url}...")
         try:
-            # Télécharge le fichier depuis l'URL et le stocke localement
             urllib.request.urlretrieve(model_url, model_path)
             print(f"Modèle téléchargé avec succès dans {model_path}")
-            # Afficher le répertoire où le modèle est stocké
             print(f"Le modèle a été stocké dans le répertoire : {os.path.dirname(model_path)}")
         except Exception as e:
             print(f"Erreur lors du téléchargement du modèle : {e}")
@@ -131,37 +127,24 @@ def download_model_if_needed(model_path):
 
 # Fonction pour charger le modèle avec les poids sauvegardés
 def load_model(model_path, num_classes):
-    """
-    Charge le modèle ResNet50 avec les poids sauvegardés.
-    :param model_path: Chemin vers le fichier du modèle (fichier .pth)
-    :param num_classes: Nombre de classes de sortie du modèle
-    :return: Modèle chargé et prêt à être utilisé pour les prédictions, et l'appareil (GPU/CPU)
-    """
-    # Charger le modèle ResNet50 sans pré-entraînement ImageNet
     model = models.resnet50(pretrained=False)
     model.fc = nn.Linear(model.fc.in_features, num_classes)
-
+    
     # Charger les poids sauvegardés dans le modèle
     state_dict = torch.load(model_path, map_location=torch.device('cpu'))
     model.load_state_dict(state_dict)
     print("Poids du modèle chargés avec succès.")
 
-    # Envoyer le modèle au GPU si disponible, sinon au CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
 
     return model, device
 
-# Déterminer le chemin du fichier modèle en fonction de l'environnement
+# Déterminer le chemin du fichier modèle de manière adaptable
 current_dir = os.getcwd()
 
-# Construction du chemin sans ajouter 'backend' deux fois
-if 'backend' in current_dir:
-    # Si le répertoire backend est déjà dans le chemin, ne pas l'ajouter à nouveau
-    model_path = os.path.join(current_dir, 'models', 'medical_model_combined_finetuned.pth')
-else:
-    # Sinon, ajouter 'backend' au chemin
-    model_path = os.path.join(current_dir, 'backend', 'models', 'medical_model_combined_finetuned.pth')
+# Trouver le répertoire 'models' peu importe le répertoire actuel
+model_path = os.path.join(current_dir, 'backend', 'models', 'medical_model_combined_finetuned.pth')
 
 # Afficher où le fichier sera stocké
 print(f"Le fichier sera téléchargé dans : {model_path}")

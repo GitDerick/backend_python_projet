@@ -60,25 +60,25 @@ app.register_blueprint(chatbot_view)
 # Vue des notifications
 app.register_blueprint(notification_view)
 
-# Fonction pour télécharger le modèle s'il n'est pas présent localement
-def download_model_if_needed():
-    model_path = "models/medical_model_combined_finetuned.pth"
-    model_url = "https://model-ia.s3.us-east-2.amazonaws.com/medical_model_combined_finetuned.pth"
+# # Fonction pour télécharger le modèle s'il n'est pas présent localement
+# def download_model_if_needed():
+#     model_path = "models/medical_model_combined_finetuned.pth"
+#     model_url = "https://model-ia.s3.us-east-2.amazonaws.com/medical_model_combined_finetuned.pth"
 
-    # Vérifier si le fichier du modèle existe, sinon le télécharger
-    if not os.path.exists(model_path):
-        print("Téléchargement du modèle depuis S3...")
-        try:
-            urllib.request.urlretrieve(model_url, model_path)
-            print("Modèle téléchargé avec succès.")
-        except Exception as e:
-            print(f"Erreur lors du téléchargement du modèle : {e}")
-            raise  # Relancer l'erreur si le téléchargement échoue
+#     # Vérifier si le fichier du modèle existe, sinon le télécharger
+#     if not os.path.exists(model_path):
+#         print("Téléchargement du modèle depuis S3...")
+#         try:
+#             urllib.request.urlretrieve(model_url, model_path)
+#             print("Modèle téléchargé avec succès.")
+#         except Exception as e:
+#             print(f"Erreur lors du téléchargement du modèle : {e}")
+#             raise  # Relancer l'erreur si le téléchargement échoue
 
 
 if __name__ == '__main__':
     # Télécharger le modèle avant de démarrer l'application
-    download_model_if_needed()
+    # download_model_if_needed()
     
     # Utiliser le port fourni par Railway, ou par défaut le port 5000 en local
     port = int(os.environ.get('PORT', 5000))
