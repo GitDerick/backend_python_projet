@@ -86,7 +86,7 @@ print("Répertoire de travail actuel :", os.getcwd())
 
 # Déterminer le chemin du fichier modèle (ici simple_model.pth dans le répertoire 'backend/models')
 current_dir = os.getcwd()  # Répertoire de travail actuel
-model_path = os.path.join(current_dir, 'models', 'simple_model.pth')  # Ajustement du chemin
+model_path = os.path.join(current_dir, 'backend', 'models', 'simple_model.pth')  # Ajustement du chemin
 
 # Afficher le chemin du fichier modèle
 print(f"Chemin du fichier modèle : {model_path}")
