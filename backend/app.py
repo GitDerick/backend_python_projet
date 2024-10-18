@@ -101,7 +101,7 @@ if __name__ == '__main__':
     # download_model_if_needed()
     
     # Utiliser le port fourni par Railway, ou par défaut le port 5000 en local
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 8080))
 
     # Ajout de logs pour afficher le port utilisé
     logger.info(f"L'application va démarrer sur le port : {port}")
@@ -111,5 +111,5 @@ if __name__ == '__main__':
 
     logger.info(f"Mode debug activé : {debug_mode}")
 
-    
+
     app.run(host='0.0.0.0', port=port, debug=True)
