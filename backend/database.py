@@ -38,38 +38,39 @@
 #     return fs
 
 
+########################################
+
 
 import mysql.connector
 from mysql.connector import Error
 from pymongo import MongoClient
 import gridfs
 
-# Connexion à MySQL via le tunnel ngrok
+# Connexion à MySQL via le réseau privé interne de Railway
 def get_mysql_connection():
     try:
+        print("Tentative de connexion à MySQL sur Railway en réseau privé...")
         conn = mysql.connector.connect(
-            host="0.tcp.ngrok.io",  # URL ngrok pour MySQL
-            user="root",  # Utilisateur MySQL
-            password="",  # Mot de passe MySQL
-            database="patients_infos",  # Nom de la base de données
-            port=10232  # Port du tunnel ngrok pour MySQL
+            host="mysql.railway.internal",  # Hostname interne privé Railway
+            user="root",  # Nom d'utilisateur sur Railway
+            password="XnaSAaGyjkiUWyWTgDubdJYosguSWEWN",  # Mot de passe Railway
+            database="railway",  # Nom de la base de données sur Railway
+            port=3306  # Port interne Railway (3306)
         )
         if conn.is_connected():
-            print("Connexion réussie à la base de données MySQL via ngrok")
-        return conn
+            print("Connexion réussie à la base de données MySQL sur Railway (réseau privé)")
+            return conn
     except Error as e:
-        print(f"Erreur lors de la connexion à MySQL via ngrok: {e}")
+        print(f"Erreur lors de la connexion à MySQL via Railway: {e}")
         return None
+
 
 # Connexion à MongoDB via le tunnel ngrok
 def get_mongo_connection():
     try:
-        # URL et port du tunnel ngrok pour MongoDB
+        print("Tentative de connexion à MongoDB via ngrok...")
         client = MongoClient('mongodb://2.tcp.ngrok.io:14889/')
-        
-        # Connexion à la base de données "Projet_stage"
         db = client['Projet_stage']
-        
         print("Connexion réussie à MongoDB via ngrok")
         return db
     except Exception as e:
@@ -79,5 +80,39 @@ def get_mongo_connection():
 # Connexion à GridFS
 def get_gridfs_connection():
     db = get_mongo_connection()  # Obtenir la connexion MongoDB via ngrok
-    fs = gridfs.GridFS(db)  # Initialisation de GridFS
-    return fs
+    if db is not None:
+        fs = gridfs.GridFS(db)  # Initialisation de GridFS
+        return fs
+    else:
+        print("Impossible d'initialiser GridFS, connexion MongoDB échouée.")
+        return None
+
+# Test de la connexion MySQL sur Railway
+if __name__ == "__main__":
+    print("Test de connexion à MySQL sur Railway en réseau privé :")
+    connection_railway = get_mysql_connection()
+    if connection_railway:
+        try:
+            cursor = connection_railway.cursor()
+            cursor.execute("SELECT DATABASE();")
+            record = cursor.fetchone()
+            print("Vous êtes connecté à la base de données:", record)
+        except Error as e:
+            print(f"Erreur lors de l'exécution de la requête sur Railway: {e}")
+        finally:
+            cursor.close()
+            connection_railway.close()
+            print("Connexion MySQL Railway fermée.")
+    else:
+        print("Échec de la connexion à MySQL sur Railway (réseau privé).")
+
+   
+
+
+
+
+
+
+
+
+
